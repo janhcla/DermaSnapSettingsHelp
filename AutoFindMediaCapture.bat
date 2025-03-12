@@ -1,63 +1,70 @@
-﻿@echo off
-setlocal enabledelayedexpansion
+@echo off
+chcp 1252 >nul
+setlocal EnableDelayedExpansion
+REM ---------------------------------------------------------
+REM DermaSnap - Auto-find MediaCapture Folder (Version 1)
+REM Søg automatisk efter mappen "MediaCapture" på et SMB-share.
+REM ---------------------------------------------------------
 
-echo ==========================================
-echo   Searching for "MediaCapture" folder
-echo ==========================================
-echo.
+REM Forudindstillet target folder
+set "TARGET_FOLDER=MediaCapture"
 
-cmd /k
+REM Initialiser variable
+set "FOUND_SHARE="
+set "FOUND_SERVER="
 
-:: Set the target folder name (hardcoded)
-set "TARGET=MediaCapture"
-set "foundPath="
-
-:: Loop over all mapped drives (detected via net use)
-for /f "skip=1 tokens=2,3,*" %%A in ('net use ^| findstr /r "^[A-Z]: " ') do (
-    set "drv=%%A"
-    set "unc=%%B"
-    if exist "!drv!\\" (
-        echo Checking drive !drv! (UNC: !unc!)...
-        rem Look for a folder that ends with \MediaCapture
-        for /f "delims=" %%F in ('dir "!drv!\%TARGET%" /s /b /ad 2^>nul ^| findstr /i /r /c:"\\%TARGET%$"') do (
-            set "foundPath=%%F"
-            set "foundDrv=!drv!"
-            goto :ProcessFound
-        )
+REM 1) Forsøg først at finde en netværksmapping via "net use"
+for /f "skip=1 tokens=2,*" %%A in ('net use ^| find "\\"') do (
+    set "UNC=%%A"
+    REM Fjern de to første backslashes og opdel i server og share
+    for /f "tokens=1,2 delims=\ " %%i in ("!UNC:~2!") do (
+         set "SERVER=%%i"
+         set "SHARE=%%j"
+    )
+    REM Test om mappen findes med pushd
+    pushd "\\!SERVER!\!SHARE!\%TARGET_FOLDER%" 2>nul
+    if not errorlevel 1 (
+         popd
+         set "FOUND_SHARE=!SHARE!"
+         set "FOUND_SERVER=!SERVER!"
+         goto :FOUND
     )
 )
 
-:ProcessFound
-if not defined foundPath (
-    echo.
-    echo The folder "%TARGET%" was not found on any mapped drive.
+:FOUND
+REM 2) Hvis ingen netværksmapping blev fundet, gennemgå de lokale shares med "net share"
+if not defined FOUND_SHARE (
+    for /f "skip=2 tokens=1" %%S in ('net share') do (
+        REM Udeluk kun IPC$, men accepter f.eks. F$
+        if /I not "%%S"=="IPC$" (
+            set "SHARE=%%S"
+            pushd "\\%computername%\!SHARE!\%TARGET_FOLDER%" 2>nul
+            if not errorlevel 1 (
+                 popd
+                 set "FOUND_SHARE=!SHARE!"
+                 set "FOUND_SERVER=%computername%"
+                 goto :FOUND2
+            )
+        )
+    )
+)
+:FOUND2
+
+if not defined FOUND_SHARE (
+    echo [FEJL] Kunne ikke finde mappen "%TARGET_FOLDER%" på nogen SMB-share.
     pause
-    exit /b
+    exit /B 1
 )
 
-:: Calculate the relative path by removing the drive letter, colon and backslash.
-:: E.g. if foundPath = "X:\Data\MediaCapture" then relative path = "Data\MediaCapture"
-set "relPath=%foundPath:~3%"
+REM Hent serverens IP ved at pinge den fundne server (tvinger IPv4 med -4)
+for /f "tokens=2 delims=[]" %%i in ('ping -4 -n 1 !FOUND_SERVER! ^| find "Pinging"') do set "SERVER_IP=%%i"
 
-:: Retrieve the UNC mapping for the drive where the folder was found.
-for /f "tokens=2 delims= " %%A in ('net use !foundDrv! ^| findstr /I /c:"!foundDrv!"') do set "UNC_MAPPING=%%A"
-
-:: Parse UNC mapping; expected format: \\ServerName\ShareName
-set "UNC_NO_SLASHES=%UNC_MAPPING:~2%"
-for /f "tokens=1,2 delims=\" %%I in ("!UNC_NO_SLASHES!") do (
-    set "serverName=%%I"
-    set "shareName=%%J"
-)
-
-:: Resolve the server's IP address (using ping)
-for /f "tokens=2 delims=[]" %%i in ('ping -4 -n 1 !serverName! ^| findstr "["') do set "serverIP=%%i"
-if not defined serverIP set "serverIP=Unknown"
-
-echo.
-echo === Results ===
-echo Server IP address:     !serverIP!
-echo Share Name:            !shareName!
-echo Target directory path: !relPath!
-echo.
+echo ============================================
+echo DermaSnap - Udfyldningsformular
+echo ============================================
+echo Server IP: %SERVER_IP%
+echo SMB Share: %FOUND_SHARE%
+echo Full Path: \\%SERVER_IP%\%FOUND_SHARE%\%TARGET_FOLDER%
+echo ============================================
 pause
-endlocal
+exit /B 0
