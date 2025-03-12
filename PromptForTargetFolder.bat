@@ -7,6 +7,10 @@ REM Beder brugeren om at indtaste navnet på den ønskede mappe
 REM og søger efter mappen på et SMB-share.
 REM ---------------------------------------------------------
 
+echo =================================================
+echo DermaSnap - Arbejder på sagen... Vent venligst...
+echo =================================================
+
 set /p "TARGET_FOLDER=Indtast navnet på den ønskede mappe på netværks-drevet: "
 
 REM Initialiser variable
@@ -62,6 +66,6 @@ echo ==================================================================
 echo Server IP: %SERVER_IP%
 echo SMB Share: %FOUND_SHARE%
 echo Full Path: \\%SERVER_IP%\%FOUND_SHARE%\%TARGET_FOLDER%
-echo ============================================
+echo ==================================================================
 pause
 exit /B 0
