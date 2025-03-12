@@ -56,9 +56,9 @@ if not defined FOUND_SHARE (
 REM Hent serverens IP ved at pinge den fundne server (tvinger IPv4 med -4)
 for /f "tokens=2 delims=[]" %%i in ('ping -4 -n 1 !FOUND_SERVER! ^| find "Pinging"') do set "SERVER_IP=%%i"
 
-echo ============================================
-echo DermaSnap - Udfyldningsformular
-echo ============================================
+echo ==================================================================
+echo DermaSnap - Informationer til app'ens Settings-/Indstillinger menu
+echo ==================================================================
 echo Server IP: %SERVER_IP%
 echo SMB Share: %FOUND_SHARE%
 echo Full Path: \\%SERVER_IP%\%FOUND_SHARE%\%TARGET_FOLDER%
