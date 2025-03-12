@@ -7,7 +7,7 @@ REM Beder brugeren om at indtaste navnet på den ønskede mappe
 REM og søger efter mappen på et SMB-share.
 REM ---------------------------------------------------------
 
-set /p "TARGET_FOLDER=Indtast navnet på den ønskede mappe på netværksstrevet: "
+set /p "TARGET_FOLDER=Indtast navnet på den ønskede mappe på netværks-drevet: "
 
 REM Initialiser variable
 set "FOUND_SHARE="
