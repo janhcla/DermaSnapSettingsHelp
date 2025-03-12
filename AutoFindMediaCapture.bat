@@ -6,6 +6,8 @@ echo   Searching for "MediaCapture" folder
 echo ==========================================
 echo.
 
+cmd /k
+
 :: Set the target folder name (hardcoded)
 set "TARGET=MediaCapture"
 set "foundPath="
