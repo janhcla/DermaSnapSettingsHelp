@@ -6,6 +6,8 @@ echo   Search for a specific folder on all mapped drives
 echo ==========================================
 echo.
 
+cmd /k
+
 :: Prompt the user to enter the target folder name
 set /p TARGET="Enter the target folder name (e.g., MediaCapture): "
 if "%TARGET%"=="" (
