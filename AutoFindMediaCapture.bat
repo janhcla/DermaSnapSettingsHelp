@@ -6,9 +6,9 @@ REM DermaSnap - Auto-find MediaCapture Folder (Version 1)
 REM Søg automatisk efter mappen "MediaCapture" på et SMB-share.
 REM ---------------------------------------------------------
 
-echo ==================================================================
+echo =================================================
 echo DermaSnap - Arbejder på sagen... Vent venligst...
-echo ==================================================================
+echo =================================================
 
 REM Forudindstillet target folder
 set "TARGET_FOLDER=MediaCapture"
