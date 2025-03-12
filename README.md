@@ -1,6 +1,5 @@
 # DermaSnapSettingsHelp
 Scripts that help the user to set up the iOS app DermaSnap
-Below is a revised version of the README.md text with improved Markdown formatting. You can copy and paste this text directly into your GitHub repository’s README.md file.
 
 ⸻
 
