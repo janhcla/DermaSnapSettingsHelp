@@ -64,5 +64,3 @@ Disclaimer
 These scripts are provided “as-is” with no warranty. They are intended as a convenient tool to help you obtain the configuration details for the DermaSnap app. Please review the code if you have any security concerns.
 
 ⸻
-
-This formatted README provides clear information for your users and ensures they understand what the batch files do before running them.
